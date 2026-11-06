@@ -1,0 +1,15 @@
+# train.py / eval.py(GT crop 평가)만 쓸 경우 (TensorFlow만 필요):
+#   conda 환경 `pmi` 에 이미 설치돼 있음 (tensorflow==2.10.0, numpy==1.23.5)
+#   없는 환경이라면: pip install -r requirements.txt
+
+tensorflow==2.16.1      # pmi 환경(2.10.0)에서도 동일 API로 동작함. 새 환경이면 이 버전 권장
+opencv-python>=4.5
+scikit-learn>=1.3
+matplotlib>=3.7
+pyyaml>=6.0
+pandas>=2.0
+pydot>=2.0              # tf.keras.utils.plot_model 구조도 PNG용 (graphviz 별도 설치 필요)
+
+# infer_2d.py / eval.py --yolo-weights (YOLO 연동) 까지 쓰려면 아래도 설치:
+# (environment.md 참고 - TensorFlow와 같은 환경에 설치)
+ultralytics>=8.4
