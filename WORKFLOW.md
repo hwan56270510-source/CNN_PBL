@@ -39,11 +39,20 @@
 
 ## 3. 3DGS 담당자
 
-1. `results.jsonl`의 각 검출마다 `mask_polygon` 안쪽 픽셀로 depth를 샘플링해 3D 포인트 획득
-2. 같은 물체가 여러 프레임(여러 시점)에서 잡힌 경우, `cls_probs`(클래스별 확률)를 가중치로 삼아 투표 → 최종 클래스 확정
-3. `pred_class`가 `other`인 검출은 실제 공구가 아닐 가능성이 높으므로 제외 권장
-4. 결과: 공구별(드릴/망치/클램프) 3D 위치
+1. **3DGS용 사진**(`gs_data/images`, 카메라 포즈 있는 사진)에 `infer_2d.py --yolo-weights`로 YOLO+CNN을 다시 돌려 `results.jsonl` 생성
+   (YOLO 라벨링용 사진은 카메라 포즈가 없어서 이 단계엔 못 씀)
+2. `lift3d/lift_to_3d.py`로 COLMAP 카메라 + 3DGS point_cloud.ply + `results.jsonl`을 합쳐 공구별 3D 위치 계산
+   ```
+   python lift3d/lift_to_3d.py --results results.jsonl --colmap gs_data/sparse/0 \
+       --ply point_cloud.ply --images gs_data/images --out_dir runs/objects_3d
+   ```
+   → 여러 시점에서 보이는 Gaussian을 마스크로 투표해서 물체 Gaussian을 정하고, 중심/회전박스(OBB)/반경/클로즈업 시점까지 계산 (자세한 원리는 `lift3d/README.md`)
+3. 결과: `runs/objects_3d/objects.json` (공구별 3D 위치) + `*_check.jpg` (확인용 그림)
+
+## 최종 결과 (2026-11-14 기준)
+- CNN 분류기: test accuracy 95.6%, k-fold(4개) 평균 95.0% (`runs/cnn_rgb128_classroom_v2_final`, `runs/cnn_rgb128_margin05_noearlystop_fold*`)
+- 3D 위치: `runs/objects_3d/objects.json` — drill/hammer/clamp 3종 전부 계산 완료 (검출 프레임 72~102장, inlier 63~97장)
 
 ## 참고
 - 세 파트 모두 각자 환경에서 독립적으로 돌아가며, 공유하는 건 이미지 파일 + JSON 파일뿐이다.
-- CNN 쪽 코드/설정/실행법 상세는 `README.md`, 환경 구성 이유는 `environment.md` 참고.
+- CNN 쪽 코드/설정/실행법 상세는 `README.md`, 환경 구성 이유는 `environment.md`, 3D 변환 상세는 `lift3d/README.md` 참고.

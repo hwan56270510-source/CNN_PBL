@@ -197,13 +197,16 @@ polygon이 없으므로 **마스크를 crop 영역 전체(1로 채움)로 대체
 | 강점·약점 | `misclassified_<split>_<tag>.csv` (오분류 사례 + 원인 메모 칸, e2e 평가 시 `yolo_gt_matched` 컬럼으로 "YOLO 오검출을 other로 거른 사례" 식별 가능) |
 | 추가 시도·시행착오 | `runs/summary.csv` (실험별 비교표, 자동 누적) |
 
+## 최종 결과 (2026-11-14)
+- CNN 분류기: test accuracy 95.6% (`runs/cnn_rgb128_classroom_v2_final`), k-fold(4개) 평균 95.0% (`runs/cnn_rgb128_margin05_noearlystop_fold*`) — bbox_margin 0.05 + early stopping 끔 설정으로 확인
+- 2D 추론: `tool_v2_best.pt`(YOLO-Seg) + 위 CNN으로 `infer_2d.py --yolo-weights` end-to-end 검증 완료
+- 3D 위치: `lift3d/lift_to_3d.py`로 drill/hammer/clamp 3종 3D 위치 계산 완료 → `runs/objects_3d/objects.json`, `*_check.jpg`
+
 ## 알려진 한계 / TODO
 - `other` 클래스 샘플은 실제 세그멘테이션이 없어 마스크 채널이 "crop 전체=1"로 더미 처리됨
   (`src/data.py: crop_and_letterbox`). `masked_rgb`/`rgbm` 모드 비교실험 결과 해석 시 염두에 둘 것.
 - `tf.keras.utils.plot_model` 구조도는 pydot+graphviz가 설치돼 있어야 생성됨 (`environment.md`).
-- `infer_2d.py`와 `eval.py --yolo-weights`는 ultralytics가 설치된 환경이 필요하며, 이 PC에는
-  아직 TF+ultralytics가 공존하는 환경을 만들지 않은 상태라 **실제 실행 검증은 하지 못함**
-  (`train.py`/`eval.py`의 GT-crop 경로는 합성 데이터로 end-to-end 검증 완료). YOLO 가중치가
-  준비되면 `environment.md`의 안내대로 환경을 만든 뒤 가장 먼저 `infer_2d.py`부터 검증할 것.
+- `infer_2d.py --yolo-weights`와 3D 변환(`lift3d/lift_to_3d.py`)까지 `tool_v2_best.pt`로 실제
+  검증 완료 (`최종 결과` 참고). `eval.py --yolo-weights`(e2e 평가)만 아직 미검증.
 - GPU 미설정 (CPU로만 동작) — 소량 데이터라 현재는 문제 없음, 필요해지면 `environment.md`
   "GPU를 나중에 쓰고 싶다면" 참고.
