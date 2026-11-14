@@ -1,0 +1,71 @@
+# =====================================================================
+# CNN 분류기 학습/평가 설정 - k-fold fold2
+# cnn.yaml 복사본. root/exp_name만 fold2로 변경.
+# 사용: python train.py --config configs/cnn_fold2.yaml
+#       python eval.py  --config configs/cnn_fold2.yaml --ckpt runs/<exp_name>/best.h5
+# =====================================================================
+
+exp_name: cnn_rgb128_margin05_noearlystop_fold2
+
+# ----- 데이터 -----
+data:
+  root: CNN_drive_V2/CNN/tools_kfold/fold2
+  classes_yaml: configs/classes.yaml
+  input_size: 128
+  bbox_margin: 0.05
+  input_mode: rgb
+  other:
+    enable: true
+    crops_per_empty_image: 2
+    crop_size_range: [0.10, 0.35]
+    seed: 0
+
+# ----- 증강 -----
+augment:
+  enable: true
+  bbox_jitter_center: 0.10
+  bbox_jitter_scale: [0.10, 0.20]
+  mask_morph: true
+  mask_morph_kernel_range: [1, 3]
+  hflip: true
+  brightness_delta: 0.15
+  contrast_delta: 0.15
+  rotate_deg: 10
+
+# ----- 모델 -----
+model:
+  type: custom_cnn
+
+  custom_cnn:
+    conv_blocks: [16, 32, 64]
+    kernel_size: 3
+    use_bn: true
+    dropout: 0.3
+    fc_units: 64
+    head: gap
+
+  mobilenet_v2:
+    alpha: 0.35
+    freeze_base: true
+    fc_units: 64
+
+# ----- 학습 -----
+train:
+  seed: 0
+  epochs: 60
+  batch_size: 16
+  optimizer: adam
+  learning_rate: 0.001
+  loss: categorical_crossentropy
+  class_weight: balanced
+  early_stopping_patience: 0
+  monitor: val_accuracy
+  cpu_only: true
+
+# ----- 평가 -----
+eval:
+  yolo_weights: null
+  yolo_conf_threshold: 0.25
+  yolo_iou_match_threshold: 0.3
+  grid_samples: 16
+  featuremap_sample_index: 0

@@ -8,14 +8,14 @@
 # 실행 결과는 항상 runs/<exp_name>/ 에 모이고, runs/summary.csv 에 한 줄씩 누적된다.
 # =====================================================================
 
-exp_name: cnn_rgb128_customcnn
+exp_name: cnn_rgb128_classroom_v2_final
 
 # ----- 데이터 -----
 data:
-  root: datasets/tools              # train/val/test 각각 images/ labels/ 하위 폴더
+  root: CNN_drive_V2/CNN/tools              # train/val/test 각각 images/ labels/ 하위 폴더
   classes_yaml: configs/classes.yaml
   input_size: 128                   # letterbox 정사각 한 변 크기
-  bbox_margin: 0.15                 # bbox 바깥 여백 (bbox 크기 대비 비율)
+  bbox_margin: 0.05                 # bbox 바깥 여백 (bbox 크기 대비 비율) - k-fold 검증 결과 0.05가 안정적
   input_mode: rgb                   # rgb | masked_rgb | rgbm  (비교실험용, README 참고)
   other:
     enable: true
@@ -66,7 +66,7 @@ train:
   learning_rate: 0.001
   loss: categorical_crossentropy
   class_weight: balanced            # null | balanced  (sample_weight로 적용, README 참고)
-  early_stopping_patience: 15
+  early_stopping_patience: 0        # val이 작아 noisy해서 끔 (k-fold 검증 결과 끝까지 돌리는 게 안정적)
   monitor: val_accuracy
   cpu_only: true                    # true면 os.environ["CUDA_VISIBLE_DEVICES"]="-1" 로 강제 CPU
 

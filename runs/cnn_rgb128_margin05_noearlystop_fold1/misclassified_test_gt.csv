@@ -1,0 +1,4 @@
+﻿image_path,true_class,pred_class,pred_conf,원인_메모
+CNN_drive_V2/CNN/tools_kfold/fold1\test\images\frame_00653.jpg,drill,other,0.557,
+CNN_drive_V2/CNN/tools_kfold/fold1\test\images\frame_00450.jpg,other,clamp,0.608,
+CNN_drive_V2/CNN/tools_kfold/fold1\test\images\frame_00437.jpg,other,clamp,0.522,

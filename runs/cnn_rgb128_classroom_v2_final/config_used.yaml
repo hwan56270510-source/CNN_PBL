@@ -1,0 +1,79 @@
+# =====================================================================
+# CNN 분류기 학습/평가 설정
+# 사용: python train.py --config configs/cnn.yaml
+#       python eval.py  --config configs/cnn.yaml --ckpt runs/<exp_name>/best.h5
+#
+# 비교 실험을 할 때는 이 파일을 복사해서 exp_name 과 바꿀 값만 수정한 뒤
+# --config 로 다른 파일을 넘기면 된다 (예: configs/cnn_masked_rgb.yaml).
+# 실행 결과는 항상 runs/<exp_name>/ 에 모이고, runs/summary.csv 에 한 줄씩 누적된다.
+# =====================================================================
+
+exp_name: cnn_rgb128_classroom_v2_final
+
+# ----- 데이터 -----
+data:
+  root: CNN_drive_V2/CNN/tools              # train/val/test 각각 images/ labels/ 하위 폴더
+  classes_yaml: configs/classes.yaml
+  input_size: 128                   # letterbox 정사각 한 변 크기
+  bbox_margin: 0.05                 # bbox 바깥 여백 (bbox 크기 대비 비율) - k-fold 검증 결과 0.05가 안정적
+  input_mode: rgb                   # rgb | masked_rgb | rgbm  (비교실험용, README 참고)
+  other:
+    enable: true
+    crops_per_empty_image: 2        # 빈 라벨(배경) 이미지 1장당 생성할 other crop 수
+    crop_size_range: [0.10, 0.35]   # 원본 이미지 min(h,w) 대비 crop 한 변 비율 범위
+    seed: 0                         # other crop 위치를 고정하기 위한 시드(재현성)
+
+# ----- 증강 (학습용 generator에만 적용) -----
+# bbox jitter / mask 침식·팽창을 넣는 이유:
+# 실제 추론 시엔 GT polygon이 아니라 YOLO 예측 박스/마스크가 들어오므로,
+# 학습 때도 "약간 어긋난" bbox와 "약간 거친" mask에 강인하도록 만든다.
+augment:
+  enable: true
+  bbox_jitter_center: 0.10          # bbox 중심을 bbox 크기의 ±10% 만큼 이동
+  bbox_jitter_scale: [0.10, 0.20]   # bbox 크기를 ±10~20% 범위에서 랜덤 변경
+  mask_morph: true
+  mask_morph_kernel_range: [1, 3]   # 침식/팽창 커널 크기(px), 원본 해상도 기준
+  hflip: true
+  brightness_delta: 0.15            # ±15% 밝기
+  contrast_delta: 0.15              # ±15% 대비
+  rotate_deg: 10                    # ±10도 회전 (letterbox 후 crop 단위로 적용)
+
+# ----- 모델 -----
+model:
+  # custom_cnn : 우리가 직접 설계한 메인 모델 (파라미터 수를 작게 유지)
+  # mobilenet_v2 : 비교용 베이스라인 (전이학습), input_mode=rgb/masked_rgb 에서만 지원
+  type: custom_cnn
+
+  custom_cnn:
+    conv_blocks: [16, 32, 64]       # 블록별 필터 수 (3블록: 128->64->32->16 공간크기)
+    kernel_size: 3
+    use_bn: true
+    dropout: 0.3
+    fc_units: 64
+    head: gap                       # gap | flatten (모델 변형 비교실험용)
+
+  mobilenet_v2:
+    alpha: 0.35                     # 가장 작은 폭(width multiplier) - 소량 데이터에 맞춤
+    freeze_base: true
+    fc_units: 64
+
+# ----- 학습 -----
+train:
+  seed: 0
+  epochs: 60
+  batch_size: 16
+  optimizer: adam                   # adam | sgd
+  learning_rate: 0.001
+  loss: categorical_crossentropy
+  class_weight: balanced            # null | balanced  (sample_weight로 적용, README 참고)
+  early_stopping_patience: 0        # val이 작아 noisy해서 끔 (k-fold 검증 결과 끝까지 돌리는 게 안정적)
+  monitor: val_accuracy
+  cpu_only: true                    # true면 os.environ["CUDA_VISIBLE_DEVICES"]="-1" 로 강제 CPU
+
+# ----- 평가 -----
+eval:
+  yolo_weights: null                # 지정 시 YOLO 예측 crop 기반 end-to-end 평가도 수행 (.pt 경로)
+  yolo_conf_threshold: 0.25
+  yolo_iou_match_threshold: 0.3     # 예측 박스<->GT 박스 매칭 IoU 기준
+  grid_samples: 16                  # 맞은/틀린 예측 그리드에 보일 샘플 수
+  featuremap_sample_index: 0        # 필터/특징맵 시각화에 쓸 test 샘플 인덱스

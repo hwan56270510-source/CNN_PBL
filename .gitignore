@@ -6,3 +6,8 @@ datasets/tools/*/images/*
 datasets/tools/*/labels/*
 !datasets/tools/*/images/.gitkeep
 !datasets/tools/*/labels/.gitkeep
+datasets/tools_roboflow_backup/
+
+# 드라이브에서 받은 원본 데이터/가중치 다운로드 폴더 (용량 큼, 소스 아님)
+CNN_drive_V1/
+CNN_drive_V2/

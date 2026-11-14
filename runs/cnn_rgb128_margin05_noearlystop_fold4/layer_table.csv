@@ -1,0 +1,17 @@
+﻿layer_name,layer_type,output_shape,n_params
+conv1,Conv2D,"(None, 128, 128, 16)",448
+bn1,BatchNormalization,"(None, 128, 128, 16)",64
+relu1,Activation,"(None, 128, 128, 16)",0
+pool1,MaxPooling2D,"(None, 64, 64, 16)",0
+conv2,Conv2D,"(None, 64, 64, 32)",4640
+bn2,BatchNormalization,"(None, 64, 64, 32)",128
+relu2,Activation,"(None, 64, 64, 32)",0
+pool2,MaxPooling2D,"(None, 32, 32, 32)",0
+conv3,Conv2D,"(None, 32, 32, 64)",18496
+bn3,BatchNormalization,"(None, 32, 32, 64)",256
+relu3,Activation,"(None, 32, 32, 64)",0
+pool3,MaxPooling2D,"(None, 16, 16, 64)",0
+gap,GlobalAveragePooling2D,"(None, 64)",0
+dropout_fc,Dropout,"(None, 64)",0
+fc1,Dense,"(None, 64)",4160
+predictions,Dense,"(None, 4)",260

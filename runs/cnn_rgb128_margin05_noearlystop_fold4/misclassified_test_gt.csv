@@ -1,0 +1,13 @@
+﻿image_path,true_class,pred_class,pred_conf,원인_메모
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00437.jpg,other,clamp,0.904,
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00428.jpg,other,clamp,0.916,
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00448.jpg,other,clamp,0.558,
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00475.jpg,other,clamp,0.679,
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00472.jpg,other,clamp,0.937,
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00421.jpg,other,clamp,0.512,
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00448.jpg,other,clamp,0.544,
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00441.jpg,other,clamp,0.957,
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00437.jpg,other,clamp,0.920,
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00472.jpg,other,clamp,0.590,
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00653.jpg,drill,other,0.589,
+CNN_drive_V2/CNN/tools_kfold/fold4\test\images\frame_00458.jpg,other,clamp,0.707,
