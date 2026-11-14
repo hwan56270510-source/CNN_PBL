@@ -120,6 +120,8 @@ def run_e2e_eval(yolo_weights, split_dir, eval_cfg, split):
 
     yolo = YOLO(yolo_weights)
     conf_thr = eval_cfg.get("yolo_conf_threshold", 0.25)
+    yolo_imgsz = eval_cfg.get("yolo_imgsz", 1280)
+    yolo_iou = eval_cfg.get("yolo_nms_iou", 0.3)
     iou_thr = eval_cfg.get("yolo_iou_match_threshold", 0.3)
     margin, size, mode = data_cfg["bbox_margin"], data_cfg["input_size"], data_cfg["input_mode"]
     other_id = classes["other_class_id"]
@@ -131,7 +133,7 @@ def run_e2e_eval(yolo_weights, split_dir, eval_cfg, split):
         img_h, img_w = img_rgb.shape[:2]
         gt_objs = data_mod.parse_label_file(lbl_path, img_w, img_h)
 
-        result = yolo.predict(source=img_path, conf=conf_thr, verbose=False)[0]
+        result = yolo.predict(source=img_path, conf=conf_thr, imgsz=yolo_imgsz, iou=yolo_iou, verbose=False)[0]
         if result.boxes is None or len(result.boxes) == 0:
             continue
         boxes = result.boxes.xyxy.cpu().numpy()
