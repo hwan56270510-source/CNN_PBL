@@ -19,6 +19,8 @@ parser.add_argument("--config", default="configs/cnn.yaml")
 parser.add_argument("--ckpt", required=True, help="CNN 체크포인트(.h5) 경로")
 parser.add_argument("--out", default="runs/demo_infer_2d")
 parser.add_argument("--conf", type=float, default=None, help="YOLO conf threshold override (--yolo-weights 사용 시)")
+parser.add_argument("--imgsz", type=int, default=None, help="YOLO 추론 해상도 override (기본: config eval.yolo_imgsz)")
+parser.add_argument("--iou", type=float, default=None, help="YOLO NMS IoU override (기본: config eval.yolo_nms_iou)")
 args = parser.parse_args()
 
 if bool(args.yolo_weights) == bool(args.yolo_json_dir):
@@ -44,6 +46,8 @@ from src import data as data_mod
 
 data_cfg = cfg["data"]
 conf_thr = args.conf if args.conf is not None else cfg["eval"].get("yolo_conf_threshold", 0.25)
+yolo_imgsz = args.imgsz if args.imgsz is not None else cfg["eval"].get("yolo_imgsz", 1280)
+yolo_iou = args.iou if args.iou is not None else cfg["eval"].get("yolo_nms_iou", 0.3)
 id2name = classes["id2name"]
 
 # 클래스별 오버레이 색상 (BGR)
@@ -61,7 +65,7 @@ os.makedirs(out_json_dir, exist_ok=True)
 def get_detections(img_path):
     # 반환: [(box_xyxy, yolo_conf, mask_polygon_or_None), ...]
     if yolo_model is not None:
-        result = yolo_model.predict(source=img_path, conf=conf_thr, verbose=False)[0]
+        result = yolo_model.predict(source=img_path, conf=conf_thr, imgsz=yolo_imgsz, iou=yolo_iou, verbose=False)[0]
         if result.boxes is None or len(result.boxes) == 0:
             return []
         boxes = result.boxes.xyxy.cpu().numpy()

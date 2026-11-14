@@ -74,6 +74,8 @@ train:
 eval:
   yolo_weights: null                # 지정 시 YOLO 예측 crop 기반 end-to-end 평가도 수행 (.pt 경로)
   yolo_conf_threshold: 0.25
+  yolo_imgsz: 1280                  # YOLO 추론 해상도 = 학습 때 imgsz 와 같게 (기본 640 이면 작은 공구/마스크 품질 저하)
+  yolo_nms_iou: 0.3                 # 겹친 박스 정리 기준 (기본 0.7 이면 같은 공구에 박스가 여러 개 남음)
   yolo_iou_match_threshold: 0.3     # 예측 박스<->GT 박스 매칭 IoU 기준
   grid_samples: 16                  # 맞은/틀린 예측 그리드에 보일 샘플 수
   featuremap_sample_index: 0        # 필터/특징맵 시각화에 쓸 test 샘플 인덱스

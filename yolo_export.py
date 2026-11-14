@@ -20,6 +20,8 @@ parser.add_argument("--source", required=True)
 parser.add_argument("--weights", required=True)
 parser.add_argument("--out", default="yolo_results")
 parser.add_argument("--conf", type=float, default=0.25)
+parser.add_argument("--imgsz", type=int, default=1280, help="학습 때 imgsz 와 같게")
+parser.add_argument("--iou", type=float, default=0.3, help="겹친 박스 정리(NMS) 기준")
 args = parser.parse_args()
 
 os.makedirs(args.out, exist_ok=True)
@@ -34,7 +36,7 @@ else:
 for img_path in image_paths:
     img = cv2.imread(img_path)
     img_h, img_w = img.shape[:2]
-    result = model.predict(source=img_path, conf=args.conf, verbose=False)[0]
+    result = model.predict(source=img_path, conf=args.conf, imgsz=args.imgsz, iou=args.iou, verbose=False)[0]
 
     detections = []
     if result.boxes is not None and len(result.boxes) > 0:
